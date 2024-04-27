@@ -1,7 +1,7 @@
 class Constants:
     #константы-параметры окна
-    WIDTH = 1280
-    HEIGHT = 720
+    win_size = (1280, 720)
+    field_size = (2000, 1000)
     #константы-цвета
     WHITE = (255, 255, 255)
     BLUE = (0, 0, 255)

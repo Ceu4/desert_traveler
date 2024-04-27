@@ -6,11 +6,12 @@ import pygame
 
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, color = None):
         super().__init__()
         #создание изображения для спрайта
         self.image = pygame.Surface((width, height))
-        self.image.fill(Constants.BLUE)
+        self.image.fill(color or Constants.BLUE)
+        
 
         #создание хитбокса для спрайта
         self.rect = self.image.get_rect()
@@ -32,4 +33,9 @@ class HorizontalMovablePlatform(Platform):
         elif self.rect.x >= self.x2:
             self.rect.x = self.x2
             self.speed *= -1
-            
+
+class Lava(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        super().__init__(x, y, width, height)
+        self.image = pygame.Surface((width, height))
+        self.image.fill(Constants.RED)

@@ -4,6 +4,8 @@ from Platform import Platform
 from Player import Player
 from defines import Constants
 from Engine import Engine
+from levels.Level02 import Level02
+from levels.Level01 import *
 ####################################################################################
 # Данный код представляет собой каркас для игры в жанре платформер                 #
 # В нем определены: классы главного героя, врагов, собираемых предметов и платформ #
@@ -28,10 +30,22 @@ import pygame
 #инициализация Pygame
 pygame.init()
 
-eng = Engine()
-eng.define_level()
-eng.load_world()
+# Добавим пару уровней для демонстрации функционала
+Level_List = [Level01(), Level02()]
 
-eng.main_loop()
+eng = Engine()
+
+for l in Level_List:
+    eng.load_level(l)
+    eng.main_loop()
+    if not(eng.win):
+        break
+
+if eng.win:
+    # вывести окошко рещультатов
+    print("Win!")
+else:
+    # вести окошко об проигрыше
+    print("Loose...")
 
 pygame.quit()

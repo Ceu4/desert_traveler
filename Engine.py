@@ -10,7 +10,7 @@ import pygame
 class Engine:
     def __init__(self):
         #создаем экран, счетчик частоты кадров и очков
-        self.screen = pygame.display.set_mode((Constants.WIDTH, Constants.HEIGHT))
+        self.screen = pygame.display.set_mode(Constants.win_size)
         self.clock = pygame.time.Clock()
         self.score = 0
 
@@ -18,9 +18,10 @@ class Engine:
         self.font = pygame.font.Font(None, 36) # создание объекта, выбор размера шрифта
         self.score_text = self.font.render("Счёт: 0", True, Constants.BLACK) # выбор цвета и текст
         self.score_rect = self.score_text.get_rect() # создание хитбокса текста
-        self.score_rect.topleft = (Constants.WIDTH // 2, 100) # расположение хитбокса\текста на экране
+        self.score_rect.topleft = (Constants.win_size[0] // 2, 100) # расположение хитбокса\текста на экране
 
         #игровой цикл
+        self.win = False
         self.running = True
 
         #создаем групп спрайтов
@@ -29,6 +30,7 @@ class Engine:
         self.enemies = pygame.sprite.Group()
         self.collectibles = pygame.sprite.Group()
 
+        self.door = None
         self.player = None
         self.platforms_list = []
         self.enemies_list = []
@@ -85,19 +87,28 @@ class Engine:
                 #прибавляем одно очко
                 self.score += 1
 
-    def define_level(self):
-        #создаем игрока, платформы, врагов и то, что будем собирать в игре
-        self.player = Player(50, 50)
-        self.platforms_list = [Platform(0, Constants.HEIGHT-25, Constants.WIDTH, 50),
-                               Platform(0, 0, 10, Constants.HEIGHT-25),
-                               Platform(50, 150, 100, 20),
-                               Platform(100, 350, 100, 20),
-                               HorizontalMovablePlatform(200, 250, 450, 100, 20, 1),
-                               Platform(250, 170, 100, 20)]
-        self.enemies_list = [Enemy(120, 315)]
-        self.collectibles_list = [Collectible(280, 135)]
+    def cheak_collision_door(self, object):
+        if object.rect.colliderect(self.door.rect):
+            self.win = True
+            self.running = False
 
-    def load_world(self):
+    def load_level(self, level):
+        self.camera_group.empty()
+        self.enemies.empty()
+        self.platforms.empty()
+        self.collectibles.empty()
+
+        self.win = False
+        self.running = True
+
+        level.create_obj()
+
+        self.enemies_list = level.enemies_list
+        self.platforms_list = level.platforms_list
+        self.collectibles_list = level.collectibles_list
+        self.player = level.player
+        self.door = level.door
+
         #в трех циклах добавляем объекты в соответствующие группы
         for i in self.enemies_list:
             self.camera_group.add(i)
@@ -112,7 +123,9 @@ class Engine:
             self.collectibles.add(i)
 
         #отдельно добавляем игрока
+        self.camera_group.add(self.door)
         self.camera_group.add(self.player)
+        
 
     def update_score(self):
         #обновление счёта на экране
@@ -128,7 +141,7 @@ class Engine:
         if keys[pygame.K_RIGHT]:
             self.player.x_velocity = 5
         #условие прыжка более сложное
-        if keys[pygame.K_SPACE] and self.player.on_ground == True:
+        if keys[pygame.K_UP] and self.player.on_ground == True:
             self.player.y_velocity = -9
             self.player.on_ground = False
 
@@ -162,6 +175,7 @@ class Engine:
             self.check_collision_platforms(self.player)
             self.check_collision_enemies(self.player)
             self.check_collision_collectibles(self.player)
+            self.cheak_collision_door(self.player)
 
             self.update_score()
 
@@ -169,3 +183,4 @@ class Engine:
             #обновление экрана и установка частоты кадров
             pygame.display.update()
             self.clock.tick(60)
+
